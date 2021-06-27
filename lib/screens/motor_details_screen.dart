@@ -99,10 +99,10 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
                   },
                   domain: 'nm',
                   domainUnity: 'rpm',
-                  imageUnity: 'kg.m²',
+                  imageUnity: 'Nm',
                   key: 'T',
                   title: 'Curvas de Torque',
-                  yTitle: 'T, T10%, T100% [kg.m²]',
+                  yTitle: 'T, T10%, T100% [Nm]',
                   xTitle: 'nm [rpm]',
                 ),
                 chartBuilder(
