@@ -25,6 +25,21 @@ class Motor {
     required this.Pn,
   });
 
+  factory Motor.fromMap(Map<String, String> map) {
+    return Motor(
+      name: map['name']!,
+      Pn: num.parse(map['pn']!),
+      Vl: num.parse(map['vl']!),
+      f: num.parse(map['f']!),
+      p: int.parse(map['p']!),
+      R1: num.parse(map['r1']!),
+      X1: num.parse(map['x1']!),
+      Xm: num.parse(map['xm']!),
+      R2: num.parse(map['r2']!),
+      X2: num.parse(map['x2']!),
+    );
+  }
+
   static const list = [
     Motor(
       name: 'Motor de 3hp',
@@ -75,4 +90,19 @@ class Motor {
       X2: 0.226,
     ),
   ];
+
+  Map<String, String> toMap() {
+    return {
+      'name': name,
+      'pn': Pn.toString(),
+      'p': p.toString(),
+      'f': f.toString(),
+      'vl': Vl.toString(),
+      'r1': R1.toString(),
+      'x1': X1.toString(),
+      'xm': Xm.toString(),
+      'r2': R2.toString(),
+      'x2': X2.toString(),
+    };
+  }
 }
