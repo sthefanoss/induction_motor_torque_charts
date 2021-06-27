@@ -71,12 +71,13 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
                             ? _selectedUnity = v
                             : _selectedUnity = _selectedUnity),
                         items: _powerUnits.keys
-                            .map<DropdownMenuItem<String>>((e) =>
-                                DropdownMenuItem(
-                                  child: Text(e),
-                                  value: e,
-                                  onTap: () => setState(() => _selectedUnity = e),
-                                ))
+                            .map<DropdownMenuItem<String>>(
+                                (e) => DropdownMenuItem(
+                                      child: Text(e),
+                                      value: e,
+                                      onTap: () =>
+                                          setState(() => _selectedUnity = e),
+                                    ))
                             .toList()),
                     width: 50,
                   ),
