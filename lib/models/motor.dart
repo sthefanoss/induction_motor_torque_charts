@@ -11,8 +11,6 @@ class Motor {
   final int p;
   final num f;
   final num Pn;
-  final num? Tn;
-  final num? nm;
 
   const Motor({
     required this.name,
@@ -25,8 +23,6 @@ class Motor {
     required this.p,
     required this.f,
     required this.Pn,
-    this.Tn,
-    this.nm,
   });
 
   static const list = [
@@ -36,8 +32,6 @@ class Motor {
       Vl: 220,
       f: 60,
       p: 4,
-      nm: 1710,
-      Tn: 11.9,
       R1: 0.435,
       X1: 0.754,
       Xm: 26.13,
@@ -50,8 +44,6 @@ class Motor {
       Vl: 460,
       f: 60,
       p: 4,
-      nm: 1705,
-      Tn: 198,
       R1: 0.087,
       X1: 0.302,
       Xm: 13.08,
@@ -64,8 +56,6 @@ class Motor {
       Vl: 2300,
       f: 60,
       p: 4,
-      nm: 1773,
-      Tn: 1980,
       R1: 0.262,
       X1: 1.206,
       Xm: 54.02,
@@ -78,8 +68,6 @@ class Motor {
       Vl: 2300,
       f: 60,
       p: 4,
-      nm: 1786,
-      Tn: 8900,
       R1: 0.029,
       X1: 0.226,
       Xm: 13.04,
