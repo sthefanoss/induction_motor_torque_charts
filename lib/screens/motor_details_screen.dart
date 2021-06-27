@@ -28,7 +28,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
   void initState() {
     _simulation = MotorSimulation.compute(
       motor: widget.motor,
-      numberOfPoints: 300,
+      numberOfPoints: 360,
     );
     List<FlSpot> _mapper(String key) => _simulation.data.entries
         .map<FlSpot>((e) => FlSpot(e.key, e.value[key]!))
@@ -95,7 +95,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
                   data: {
                     'T': _TData,
                     'T10%': _T10Data,
-                    'T100%': _T100Data,
+                    'Tn': _T100Data,
                   },
                   domain: 'nm',
                   domainUnity: 'rpm',
@@ -148,8 +148,8 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
       children: charts
           .map(
             (chart) => Container(
-              constraints:
-                  BoxConstraints.tightFor(width: maxWidth*0.75, height: maxWidth*0.75),
+              constraints: BoxConstraints.tightFor(
+                  width: maxWidth * 0.85, height: maxWidth * 0.85),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: chart,
@@ -242,11 +242,12 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
             touchTooltipData: LineTouchTooltipData(
                 getTooltipItems: (List<LineBarSpot> touchedSpots) {
               return touchedSpots.map((e) {
-                int index = touchedSpots.indexOf(e);
+                int index = e.barIndex;
 
                 return LineTooltipItem(
-                    '${data.keys.toList()[index]}(${e.x.toStringAsFixed(0)}) = ${e.y.toStringAsFixed(0)} $imageUnity',
-                    TextStyle(fontSize: 11));
+                    '${data.keys.toList()[index]}(${e.x.toStringAsFixed(0)}) = ${e.y.toStringAsFixed(2)} $imageUnity',
+                    TextStyle(fontSize: 11),
+                    textAlign: TextAlign.start);
               }).toList();
             }),
           )),

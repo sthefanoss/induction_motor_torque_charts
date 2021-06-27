@@ -28,7 +28,7 @@ class MotorSimulation {
     final nm = _generate<double>((i) => i * dnm);
     final s = _generate<double>((i) => (ns - nm[i]) / ns);
     final R2s = _generate<double>((i) => motor.R2 / s[i]);
-
+    R2s.last = 1E50;
     final Z1 = Complex(motor.R1, motor.X1);
     final Zm = Complex(0, motor.Xm);
     final Z2s = _generate<Complex>((i) => Complex(R2s[i], motor.X2));
