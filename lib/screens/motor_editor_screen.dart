@@ -48,18 +48,18 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
       body: SingleChildScrollView(
         child: Align(
           alignment: Alignment.topCenter,
-          child: Container(
-            constraints: BoxConstraints(maxWidth: 360),
-            child: Column(
-              children: [
-                Divider(),
-                Text('Nome do registro'),
-                Divider(),
-                _buildField(controller: _name, label: 'Nome'),
-                Divider(),
-                Text('Especificações do motor'),
-                Divider(),
-                Row(children: [
+          child: Column(
+            children: [
+              Divider(),
+              Text('Nome do registro'),
+              Divider(),
+              _buildField(controller: _name, label: 'Nome'),
+              Divider(),
+              Text('Especificações do motor'),
+              Divider(),
+              Container(
+                constraints: BoxConstraints(maxWidth: 360),
+                child: Row(children: [
                   Expanded(
                     child: _buildField(controller: _pn, label: 'Potência'),
                   ),
@@ -71,32 +71,32 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
                             ? _selectedUnity = v
                             : _selectedUnity = _selectedUnity),
                         items: _powerUnits.keys
-                            .map<DropdownMenuItem<String>>(
-                                (e) => DropdownMenuItem(
-                                      child: Text(e),
-                                      value: e,
-                                      onTap: () =>
-                                          setState(() => _selectedUnity = e),
-                                    ))
+                            .map<DropdownMenuItem<String>>((e) =>
+                                DropdownMenuItem(
+                                  child: Text(e),
+                                  value: e,
+                                  onTap: () => setState(() => _selectedUnity = e),
+                                ))
                             .toList()),
                     width: 50,
                   ),
                 ]),
-                _buildField(
-                    controller: _f, label: 'frequência da rede', unity: 'Hz'),
-                _buildField(controller: _p, label: 'número de polos'),
-                _buildField(
-                    controller: _vl, label: 'Tensão de linha', unity: 'V'),
-                Divider(),
-                Text('Parâmetros do modelo'),
-                Divider(),
-                _buildField(controller: _r1, label: 'R1', unity: 'Ω'),
-                _buildField(controller: _x1, label: 'X1', unity: 'Ω'),
-                _buildField(controller: _xm, label: 'Xm', unity: 'Ω'),
-                _buildField(controller: _r2, label: 'R2', unity: 'Ω'),
-                _buildField(controller: _x2, label: 'X2', unity: 'Ω'),
-              ],
-            ),
+              ),
+              _buildField(
+                  controller: _f, label: 'frequência da rede', unity: 'Hz'),
+              _buildField(controller: _p, label: 'número de polos'),
+              _buildField(
+                  controller: _vl, label: 'Tensão de linha', unity: 'V'),
+              Divider(),
+              Text('Parâmetros do modelo'),
+              Divider(),
+              _buildField(controller: _r1, label: 'R1', unity: 'Ω'),
+              _buildField(controller: _x1, label: 'X1', unity: 'Ω'),
+              _buildField(controller: _xm, label: 'Xm', unity: 'Ω'),
+              _buildField(controller: _r2, label: 'R2', unity: 'Ω'),
+              _buildField(controller: _x2, label: 'X2', unity: 'Ω'),
+              SizedBox(height: 50),
+            ],
           ),
         ),
       ),
@@ -146,11 +146,14 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
     required String label,
     final unity,
   }) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        suffix: unity == null ? null : Text(unity),
+    return Container(
+      constraints: BoxConstraints(maxWidth: 360),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          suffix: unity == null ? null : Text(unity),
+        ),
       ),
     );
   }
