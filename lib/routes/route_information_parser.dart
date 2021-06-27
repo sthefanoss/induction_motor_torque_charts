@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/motor.dart';
 import '../models/route_path.dart';
 
 class AppRouteInformationParser extends RouteInformationParser<RoutePath> {
@@ -6,57 +7,68 @@ class AppRouteInformationParser extends RouteInformationParser<RoutePath> {
   Future<RoutePath> parseRouteInformation(
     RouteInformation routeInformation,
   ) async {
-    final uri = Uri.parse(routeInformation.location ?? '/');
-    // Handle '/'
-    if (uri.pathSegments.length == 0) {
-      return RoutePath.home();
-    }
-
-    // Handle '/motor/:id'
-    if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'motor') {
-      int? id = int.tryParse(uri.pathSegments[1]);
-      if (id == null) {
-        return RoutePath.unknown();
+    try {
+      final uri = Uri.parse(routeInformation.location ?? '/');
+      // Handle '/'
+      if (uri.pathSegments.length == 0) {
+        return RoutePath.home();
       }
 
-      return RoutePath.details(id);
-    }
-
-    // Handle '/editor'
-    if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'editor') {
-      return RoutePath.editor();
-    }
-
-    // Handle '/editor/:id'
-    if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'editor') {
-      int? id = int.tryParse(uri.pathSegments[1]);
-      if (id == null) {
-        return RoutePath.unknown();
+      // Handle '/motor/:id'
+      if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'motor') {
+        int id = int.parse(uri.pathSegments[1]);
+        return RoutePath.details(id);
       }
-      return RoutePath.editor(id);
-    }
 
-    // Handle unknown routes
-    return RoutePath.unknown();
+      // Handle '/editor'
+      if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'editor') {
+        return RoutePath.editor();
+      }
+
+      // Handle '/editor/:id'
+      if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'editor') {
+        int id = int.parse(uri.pathSegments[1]);
+        return RoutePath.editor(id);
+      }
+
+      // Handle '/share/:motor'
+      if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'share') {
+        return RoutePath.share(Motor.fromMap(uri.queryParameters));
+      }
+
+      // Handle unknown routes
+      return RoutePath.unknown();
+    } catch (e) {
+      return RoutePath.unknown();
+    }
   }
 
   @override
   RouteInformation restoreRouteInformation(RoutePath path) {
-    if (path.isEditorPage && path.id == null) {
-      return RouteInformation(location: '/editor');
-    }
+    try {
+      if (path.motor != null) {
+        final uri = Uri(path: '/share', queryParameters: path.motor!.toMap());
+        return RouteInformation(location: uri.toString());
+      }
 
-    if (path.isEditorPage) {
-      return RouteInformation(location: '/editor/${path.id}');
-    }
+      if (path.isEditorPage && path.id == null) {
+        return RouteInformation(location: '/editor');
+      }
 
-    if (path.isHomePage) {
-      return RouteInformation(location: '/');
-    }
-    if (path.isDetailsPage) {
-      return RouteInformation(location: '/motor/${path.id}');
-    }
+      if (path.isEditorPage) {
+        return RouteInformation(location: '/editor/${path.id}');
+      }
 
-    return RouteInformation(location: '/404');
+      if (path.isHomePage) {
+        return RouteInformation(location: '/');
+      }
+      if (path.isDetailsPage) {
+        return RouteInformation(location: '/motor/${path.id}');
+      }
+
+      return RouteInformation(location: '/404');
+    } catch (e) {
+      return RouteInformation(location: '/404');
+    }
   }
 }

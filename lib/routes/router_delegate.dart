@@ -100,6 +100,15 @@ class AppRouterDelegate extends RouterDelegate<RoutePath>
       return;
     }
 
+    if (path.motor != null) {
+      motors.add(path.motor!);
+      _selectedMotor = path.motor;
+      isEditorPage = false;
+      show404 = false;
+      notifyListeners();
+      return;
+    }
+
     if (path.isDetailsPage && path.id != null) {
       isEditorPage = false;
       if (path.id! < 0 || path.id! > motors.length - 1) {

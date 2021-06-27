@@ -1,8 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
+import '../helpers/base_uri.dart';
+import '../routes/router_delegate.dart';
 import '../models/motor.dart';
 import '../math/motor_simulation.dart';
+
+const myRepositoryUrl = r'https://sthefanoss.github.io/#/';
 
 class MotorDetailsScreen extends StatefulWidget {
   final Motor motor;
@@ -124,6 +129,31 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
           ],
         ),
       ),
+      floatingActionButton: kIsWeb
+          ? FloatingActionButton(
+              child: Icon(Icons.share),
+              onPressed: () {
+                final baseUri = getBaseUri();
+                final uri =
+                    Uri(path: 'share', queryParameters: widget.motor.toMap());
+
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: Text('Compartilhar Registro'),
+                          content:
+                              SelectableText(baseUri! + '#/' + uri.toString()),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  AppRouterDelegate.of(context).popRoute();
+                                },
+                                child: Text('Ok'))
+                          ],
+                        ));
+              },
+            )
+          : null,
     );
   }
 
@@ -246,7 +276,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
 
                 return LineTooltipItem(
                     '${data.keys.toList()[index]}(${e.x.toStringAsFixed(0)}) = ${e.y.toStringAsFixed(2)} $imageUnity',
-                    TextStyle(fontSize: 11),
+                    TextStyle(fontSize: 11, color: Colors.black),
                     textAlign: TextAlign.start);
               }).toList();
             }),
