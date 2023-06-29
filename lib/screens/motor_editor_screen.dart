@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:induction_motor_torque_charts/routes/router_delegate.dart';
 import 'package:faker/faker.dart' as faker;
+import 'package:go_router/go_router.dart';
+import 'package:induction_motor_torque_charts/main.dart';
+import 'package:provider/provider.dart';
 import '../models/motor.dart';
 
 extension NumberParser on String {
@@ -10,19 +12,15 @@ extension NumberParser on String {
 }
 
 class MotorEditorScreen extends StatefulWidget {
-  const MotorEditorScreen({this.motor, Key? key}) : super(key: key);
-
-  final Motor? motor;
+  const MotorEditorScreen({super.key});
 
   @override
   _MotorEditorScreenState createState() => _MotorEditorScreenState();
 }
 
 class _MotorEditorScreenState extends State<MotorEditorScreen> {
-  final _name = TextEditingController(
-      text: faker.faker.lorem
-          .words(2)
-          .reduce((value, element) => value + ' ' + element));
+  final _name =
+      TextEditingController(text: faker.faker.lorem.words(2).reduce((value, element) => value + ' ' + element));
   final _pn = TextEditingController();
   final _vl = TextEditingController(text: '220');
   final _f = TextEditingController(text: '60');
@@ -67,27 +65,22 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
                     child: DropdownButton<String>(
                         value: _selectedUnity,
                         onTap: () {},
-                        onChanged: (v) => setState(() => v != null
-                            ? _selectedUnity = v
-                            : _selectedUnity = _selectedUnity),
+                        onChanged: (v) =>
+                            setState(() => v != null ? _selectedUnity = v : _selectedUnity = _selectedUnity),
                         items: _powerUnits.keys
-                            .map<DropdownMenuItem<String>>(
-                                (e) => DropdownMenuItem(
-                                      child: Text(e),
-                                      value: e,
-                                      onTap: () =>
-                                          setState(() => _selectedUnity = e),
-                                    ))
+                            .map<DropdownMenuItem<String>>((e) => DropdownMenuItem(
+                                  child: Text(e),
+                                  value: e,
+                                  onTap: () => setState(() => _selectedUnity = e),
+                                ))
                             .toList()),
                     width: 50,
                   ),
                 ]),
               ),
-              _buildField(
-                  controller: _f, label: 'frequência da rede', unity: 'Hz'),
+              _buildField(controller: _f, label: 'frequência da rede', unity: 'Hz'),
               _buildField(controller: _p, label: 'número de polos'),
-              _buildField(
-                  controller: _vl, label: 'Tensão de linha', unity: 'V'),
+              _buildField(controller: _vl, label: 'Tensão de linha', unity: 'V'),
               Divider(),
               Text('Parâmetros do modelo'),
               Divider(),
@@ -109,7 +102,6 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
   }
 
   void _save() {
-    final _router = AppRouterDelegate.of(context);
     try {
       final motorEntry = Motor(
         name: _name.text,
@@ -124,19 +116,20 @@ class _MotorEditorScreenState extends State<MotorEditorScreen> {
         X2: _x2.text.numParse,
       );
 
-      int index = _router.saveMotor(motorEntry);
-      _router.popRoute();
-      _router.selectMotor(index);
+      final controller = context.read<MotorsController>();
+      controller.add(motorEntry);
+      context.go('/${controller.motors.length - 1}');
     } catch (e) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Erro ao ler os dados!'),
-          content: Text(
-              'Certifique-se de ter escrito os valores numéricos corretamente. Utilize PONTO para a casa decimal.'),
-          actions: [
-            ElevatedButton(onPressed: _router.popRoute, child: Text('OK :('))
-          ],
+        builder: (context) => WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            title: Text('Erro ao ler os dados!'),
+            content: Text(
+                'Certifique-se de ter escrito os valores numéricos corretamente. Utilize PONTO para a casa decimal.'),
+            actions: [ElevatedButton(onPressed: context.pop, child: Text('OK :('))],
+          ),
         ),
       );
     }

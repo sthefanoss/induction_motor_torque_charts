@@ -1,20 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../helpers/base_uri.dart';
-import '../routes/router_delegate.dart';
+import '../main.dart';
 import '../models/motor.dart';
 import '../math/motor_simulation.dart';
 
 const myRepositoryUrl = r'https://sthefanoss.github.io/#/';
 
 class MotorDetailsScreen extends StatefulWidget {
-  final Motor motor;
-
-  MotorDetailsScreen({
-    required this.motor,
-  });
+  const MotorDetailsScreen({super.key});
 
   @override
   _MotorDetailsScreenState createState() => _MotorDetailsScreenState();
@@ -28,32 +26,38 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
   late List<FlSpot> _I1Data;
   late List<FlSpot> _I2Data;
   late List<FlSpot> _ImData;
+  late Motor _motor;
+  bool didInit = false;
 
   @override
-  void initState() {
-    _simulation = MotorSimulation.compute(
-      motor: widget.motor,
-      numberOfPoints: 360,
-    );
-    List<FlSpot> _mapper(String key) => _simulation.data.entries
-        .map<FlSpot>((e) => FlSpot(e.key, e.value[key]!))
-        .toList();
+  void didChangeDependencies() {
+    if (!didInit) {
+      didInit = true;
 
-    _TData = _mapper('T');
-    _T10Data = _mapper('T10');
-    _T100Data = _mapper('T100');
-    _I1Data = _mapper('I1');
-    _I2Data = _mapper('I2');
-    _ImData = _mapper('Im');
+      final state = GoRouterState.of(context);
+      _motor = context.read<MotorsController>().motors[int.parse(state.pathParameters['index']!)];
+      _simulation = MotorSimulation.compute(
+        motor: _motor,
+        numberOfPoints: 360,
+      );
+      List<FlSpot> _mapper(String key) =>
+          _simulation.data.entries.map<FlSpot>((e) => FlSpot(e.key, e.value[key]!)).toList();
 
-    super.initState();
+      _TData = _mapper('T');
+      _T10Data = _mapper('T10');
+      _T100Data = _mapper('T100');
+      _I1Data = _mapper('I1');
+      _I2Data = _mapper('I2');
+      _ImData = _mapper('Im');
+    }
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.motor.name),
+        title: Text(_motor.name),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) => ListView(
@@ -65,10 +69,10 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
             ),
             Divider(),
             Text(
-              'P = ${widget.motor.Pn.toStringAsFixed(0)} kW |'
-              ' f = ${widget.motor.f} Hz |'
-              ' p = ${widget.motor.p} |'
-              ' Vl = ${widget.motor.Vl} V',
+              'P = ${_motor.Pn.toStringAsFixed(0)} kW |'
+              ' f = ${_motor.f} Hz |'
+              ' p = ${_motor.p} |'
+              ' Vl = ${_motor.Vl} V',
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10),
@@ -79,11 +83,11 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
             ),
             Divider(),
             Text(
-              'R1 = ${widget.motor.R1}Ω |'
-              ' X1 = ${widget.motor.X1}Ω |'
-              ' Xm = ${widget.motor.Xm}Ω |'
-              ' R2 = ${widget.motor.R2}Ω |'
-              ' X2 = ${widget.motor.X2}Ω',
+              'R1 = ${_motor.R1}Ω |'
+              ' X1 = ${_motor.X1}Ω |'
+              ' Xm = ${_motor.Xm}Ω |'
+              ' R2 = ${_motor.R2}Ω |'
+              ' X2 = ${_motor.X2}Ω',
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10),
@@ -134,22 +138,14 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
               child: Icon(Icons.share),
               onPressed: () {
                 final baseUri = getBaseUri();
-                final uri =
-                    Uri(path: 'share', queryParameters: widget.motor.toMap());
+                final uri = Uri(path: 'share', queryParameters: _motor.toMap());
 
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
                           title: Text('Compartilhar Registro'),
-                          content:
-                              SelectableText(baseUri! + '#/' + uri.toString()),
-                          actions: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  AppRouterDelegate.of(context).popRoute();
-                                },
-                                child: Text('Ok'))
-                          ],
+                          content: SelectableText(baseUri! + '#/' + uri.toString()),
+                          actions: [ElevatedButton(onPressed: context.pop, child: Text('Ok'))],
                         ));
               },
             )
@@ -163,8 +159,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
         children: charts
             .map(
               (chart) => Container(
-                constraints: BoxConstraints.tightFor(
-                    width: maxWidth / 2, height: maxWidth / 2),
+                constraints: BoxConstraints.tightFor(width: maxWidth / 2, height: maxWidth / 2),
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: chart,
@@ -178,8 +173,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
       children: charts
           .map(
             (chart) => Container(
-              constraints: BoxConstraints.tightFor(
-                  width: maxWidth * 0.85, height: maxWidth * 0.85),
+              constraints: BoxConstraints.tightFor(width: maxWidth * 0.85, height: maxWidth * 0.85),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: chart,
@@ -227,10 +221,8 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
           titlesData: FlTitlesData(
             leftTitles: SideTitles(
               showTitles: true,
-              getTextStyles: (value) => const TextStyle(
-                  color: Colors.blueGrey,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11),
+              getTextStyles: (value) =>
+                  const TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 11),
               margin: 6,
               interval: intervalY,
             ),
@@ -250,10 +242,8 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
           ),
           axisTitleData: FlAxisTitleData(
             topTitle: AxisTitle(showTitle: true, titleText: title),
-            leftTitle:
-                AxisTitle(showTitle: true, titleText: yTitle, reservedSize: 20),
-            bottomTitle:
-                AxisTitle(showTitle: true, titleText: xTitle, reservedSize: 20),
+            leftTitle: AxisTitle(showTitle: true, titleText: yTitle, reservedSize: 20),
+            bottomTitle: AxisTitle(showTitle: true, titleText: xTitle, reservedSize: 20),
           ),
           lineBarsData: data.values
               .map((data) => LineChartBarData(
@@ -269,8 +259,7 @@ class _MotorDetailsScreenState extends State<MotorDetailsScreen> {
                   ))
               .toList(),
           lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-                getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            touchTooltipData: LineTouchTooltipData(getTooltipItems: (List<LineBarSpot> touchedSpots) {
               return touchedSpots.map((e) {
                 int index = e.barIndex;
 
